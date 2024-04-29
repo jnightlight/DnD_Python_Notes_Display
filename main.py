@@ -1,60 +1,28 @@
-import logging
 import sys
 import os
+import math
 import curses
 import curses.ascii
-import math
 import TerminalSizeProperties
-import helperFunctions
+import loadFile
 
 
-def populate_app_data_basic(filename):
-    with open(filename) as opened_file:
-        logging.debug("OPENED FILE!")
-        lines = opened_file.readlines()
-    in_title = False
-    current_indent_level = 0
-    definition_dict = {}
-    current_top_level_definition = ""
-    for line in lines:
-        # Check to see if we're in a "header"
-        if line.startswith("-----"):
-            in_title = not in_title
-            continue
-        if in_title:
-            continue
-        # Ignore completely empty lines
-        if line.isspace() or len(line) <= 0:
-            continue
-        new_index_level = helperFunctions.get_tab_count(line)
-        if not (new_index_level == current_indent_level):
-            current_indent_level = new_index_level
-        line = line.strip(" ")
-        line = line.strip("\n")
-        if current_indent_level == 0:
-            logging.debug("Adding top level: " + line)
-            definition_dict[line] = ""
-            current_top_level_definition = line
-        elif current_indent_level > 0:
-            if len(current_top_level_definition) > 0:
-                logging.debug("Adding line to level: " + current_top_level_definition)
-                definition_dict[current_top_level_definition] += line
-    return definition_dict
-
-
-def print_keys(window, display_dict, selected_key, max_valid_row):
+def print_keys(window, display_dict, selected_key, size_properties):
     row = 1
     matching_words = []
     for key in display_dict.keys():
+        if len(key) > size_properties.max_valid_cols:
+            key = key[len(key) - (math.fabs(len(key) - size_properties.max_valid_cols))]
         attribute = curses.A_NORMAL
         if selected_key in key:
             attribute = curses.A_STANDOUT
             matching_words.append(key)
         window.addstr(row, 1, key, attribute)
         row += 1
-        if row >= max_valid_row - 1:
+        if row >= size_properties.max_valid_rows - 1:
             break
     return matching_words
+
 
 def main(stdscr):
     curses.echo()
@@ -87,10 +55,10 @@ def main(stdscr):
     if not os.path.isfile(sys.argv[1]):
         # logging.error("invalid file path provided")
         exit(1)
-    app_data_dictionary = populate_app_data_basic(sys.argv[1])
+    app_data_dictionary = loadFile.populate_app_data_basic(sys.argv[1])
     loop = True
 
-    print_keys(key_box_window, app_data_dictionary, "intro", curses.LINES - 1)
+    print_keys(key_box_window, app_data_dictionary, "intro", size_properties)
     cur_char_x = 0
     cur_string = ''
     arrow_key_index = 0
@@ -140,7 +108,7 @@ def main(stdscr):
             cur_char_x += 1
         key_window.addnstr(size_properties.key_window_rows - 1, 0, cur_string, size_properties.key_window_cols - 2)
 
-        matching_words = print_keys(key_box_window, app_data_dictionary, cur_string, curses.LINES - 1)
+        matching_words = print_keys(key_box_window, app_data_dictionary, cur_string, size_properties)
         if len(matching_words) == 1:
             data_window.addnstr(0, 0, app_data_dictionary[matching_words[0]], 100)
         if "exit" in cur_string:

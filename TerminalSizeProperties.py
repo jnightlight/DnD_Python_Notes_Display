@@ -46,4 +46,5 @@ def resize_screens(size_properties, key_box_screen, key_screen, value_box_screen
 
     value_box_screen.mvwin(0, size_properties.data_box_window_x)
     value_box_screen.resize(size_properties.data_box_window_rows, size_properties.data_box_window_cols)
+    value_screen.mvwin(1, size_properties.data_box_window_x + 1)
     value_screen.resize(size_properties.data_window_rows, size_properties.data_window_cols)
