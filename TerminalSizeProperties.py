@@ -35,16 +35,16 @@ class TerminalSizeProperties:
         self.data_window_rows = self.data_box_window_rows - 2
 
 
-def resize_screens(size_properties, key_box_screen, key_screen, value_box_screen, value_screen):
+def resize_screens(size_properties, window_manager):
     curses.update_lines_cols()
     size_properties.max_valid_rows = curses.LINES - 1
     size_properties.max_valid_cols = curses.COLS - 1
     size_properties.crunch_numbers()
 
-    key_box_screen.resize(size_properties.key_box_window_rows, size_properties.key_box_window_cols)
-    key_screen.resize(size_properties.key_window_rows, size_properties.key_window_cols)
+    window_manager.key_box_window.resize(size_properties.key_box_window_rows, size_properties.key_box_window_cols)
+    window_manager.key_window.resize(size_properties.key_window_rows, size_properties.key_window_cols)
 
-    value_box_screen.mvwin(0, size_properties.data_box_window_x)
-    value_box_screen.resize(size_properties.data_box_window_rows, size_properties.data_box_window_cols)
-    value_screen.mvwin(1, size_properties.data_box_window_x + 1)
-    value_screen.resize(size_properties.data_window_rows, size_properties.data_window_cols)
+    window_manager.data_box_window.mvwin(0, size_properties.data_box_window_x)
+    window_manager.data_box_window.resize(size_properties.data_box_window_rows, size_properties.data_box_window_cols)
+    window_manager.data_window.mvwin(1, size_properties.data_box_window_x + 1)
+    window_manager.data_window.resize(size_properties.data_window_rows, size_properties.data_window_cols)
