@@ -11,8 +11,8 @@ KEY_BOX_WINDOW_HASH = "KEY_BOX_WIND"
 KEY_WINDOW_HASH = "KEY_WIND"
 DATA_BOX_WINDOW_HASH = "DATA_BOX_WIND"
 DATA_WINDOW_HASH = "DATA_WIND"
-MAX_VALID_DISPLAY_COLS = 10
-MAX_VALID_DISPLAY_ROWS = 10
+MAX_VALID_DISPLAY_COLS = 20
+MAX_VALID_DISPLAY_ROWS = 20
 
 
 def print_keys(window, display_dict, selected_key, size_properties):
@@ -60,7 +60,9 @@ def print_data_window_data(window_manager, app_data_dictionary, size_properties,
     if size_properties.max_valid_cols <= MAX_VALID_DISPLAY_COLS or size_properties.max_valid_rows <= MAX_VALID_DISPLAY_ROWS:
         return
     total_size = size_properties.data_window_cols * size_properties.data_window_rows
-    window_manager.data_window.addnstr(0, 0, app_data_dictionary[data_word], math.floor(total_size/2))
+    current_cursor_y = 0
+
+    window_manager.data_window.addnstr(0, 0, app_data_dictionary[data_word], math.floor(total_size/1.3))
 
 
 def main(stdscr):

@@ -8,6 +8,7 @@ def populate_app_data_basic(filename):
     current_indent_level = 0
     definition_dict = {}
     current_top_level_definition = ""
+    is_space_line = False
     for line in lines:
         # Check to see if we're in a "header"
         if line.startswith("-----"):
@@ -17,12 +18,15 @@ def populate_app_data_basic(filename):
             continue
         # Ignore completely empty lines
         if line.isspace() or len(line) <= 0:
-            continue
-        new_index_level = helperFunctions.get_tab_count(line)
-        if not (new_index_level == current_indent_level):
-            current_indent_level = new_index_level
-        line = line.strip(" ")
-        line = line.strip("\n")
+            if in_title:
+                continue
+            line = "\n"
+        else:
+            new_index_level = helperFunctions.get_tab_count(line)
+            if not (new_index_level == current_indent_level):
+                current_indent_level = new_index_level
+            line = line.strip(" ")
+            line = line.strip("\n")
         if current_indent_level == 0:
             definition_dict[line] = ""
             current_top_level_definition = line
