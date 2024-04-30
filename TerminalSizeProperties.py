@@ -44,7 +44,7 @@ def resize_screens(size_properties, window_manager):
     window_manager.key_box_window.resize(size_properties.key_box_window_rows, size_properties.key_box_window_cols)
     window_manager.key_window.resize(size_properties.key_window_rows, size_properties.key_window_cols)
 
-    window_manager.data_box_window.mvwin(0, size_properties.data_box_window_x)
     window_manager.data_box_window.resize(size_properties.data_box_window_rows, size_properties.data_box_window_cols)
-    window_manager.data_window.mvwin(1, size_properties.data_box_window_x + 1)
     window_manager.data_window.resize(size_properties.data_window_rows, size_properties.data_window_cols)
+    window_manager.data_box_window.mvwin(0, size_properties.data_box_window_x)
+    window_manager.data_window.mvwin(1, size_properties.data_box_window_x + 1)

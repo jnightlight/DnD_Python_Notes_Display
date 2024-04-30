@@ -79,8 +79,6 @@ def main(stdscr):
     cur_string = ''
     arrow_key_index = 0
     while loop:
-        TerminalSizeProperties.resize_screens(size_properties, window_manager)
-
         window_manager.refresh_and_draw_boxes()
         in_char = key_window.getch(size_properties.key_window_rows - 1, cur_char_x)
         window_manager.clear_all_windows()
