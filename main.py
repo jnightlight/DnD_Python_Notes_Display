@@ -11,11 +11,15 @@ KEY_BOX_WINDOW_HASH = "KEY_BOX_WIND"
 KEY_WINDOW_HASH = "KEY_WIND"
 DATA_BOX_WINDOW_HASH = "DATA_BOX_WIND"
 DATA_WINDOW_HASH = "DATA_WIND"
+MAX_VALID_DISPLAY_COLS = 10
+MAX_VALID_DISPLAY_ROWS = 10
 
 
 def print_keys(window, display_dict, selected_key, size_properties):
     row = 1
     matching_words = []
+    if size_properties.max_valid_cols <= MAX_VALID_DISPLAY_COLS or size_properties.max_valid_rows <= MAX_VALID_DISPLAY_ROWS:
+        return matching_words
     for key in display_dict.keys():
         if len(key) > size_properties.max_valid_cols:
             key = key[len(key) - (math.fabs(len(key) - size_properties.max_valid_cols))]
@@ -33,13 +37,13 @@ def print_keys(window, display_dict, selected_key, size_properties):
 def create_windows(size_properties):
     window_manager = WindowManager.WindowManager()
     window_manager.key_box_window = curses.newwin(size_properties.key_box_window_rows,
-                                              size_properties.key_box_window_cols,
-                                              0,
-                                              0)
+                                                  size_properties.key_box_window_cols,
+                                                  0,
+                                                  0)
     window_manager.key_window = window_manager.key_box_window.derwin(size_properties.key_window_rows,
-                                                                         size_properties.key_window_cols,
-                                                                         1,
-                                                                         1)
+                                                                     size_properties.key_window_cols,
+                                                                     1,
+                                                                     1)
     window_manager.key_window.keypad(True)
     window_manager.data_box_window = curses.newwin(size_properties.data_box_window_rows,
                                                    size_properties.data_box_window_cols,
@@ -50,6 +54,13 @@ def create_windows(size_properties):
                                                                        1,
                                                                        1)
     return window_manager
+
+
+def print_data_window_data(window_manager, app_data_dictionary, size_properties, data_word):
+    if size_properties.max_valid_cols <= MAX_VALID_DISPLAY_COLS or size_properties.max_valid_rows <= MAX_VALID_DISPLAY_ROWS:
+        return
+    total_size = size_properties.data_window_cols * size_properties.data_window_rows
+    window_manager.data_window.addnstr(0, 0, app_data_dictionary[data_word], math.floor(total_size/2))
 
 
 def main(stdscr):
@@ -63,8 +74,6 @@ def main(stdscr):
 
     key_box_window = window_manager.key_box_window
     key_window = window_manager.key_window
-    data_box_window = window_manager.data_box_window
-    data_window = window_manager.data_window
     TerminalSizeProperties.resize_screens(size_properties, window_manager)
 
     # Bail if not a file
@@ -82,6 +91,8 @@ def main(stdscr):
         window_manager.refresh_and_draw_boxes()
         in_char = key_window.getch(size_properties.key_window_rows - 1, cur_char_x)
         window_manager.clear_all_windows()
+        if curses.LINES <= MAX_VALID_DISPLAY_ROWS or curses.COLS <= MAX_VALID_DISPLAY_COLS:
+            continue
 
         # Replace current search string
         if in_char == curses.ascii.BS or in_char == curses.ascii.DEL or in_char == curses.KEY_BACKSPACE or in_char == curses.KEY_DC:
@@ -112,11 +123,13 @@ def main(stdscr):
             window_manager.key_window.addch(size_properties.key_window_rows - 1, cur_char_x, in_char)
             cur_string += chr(in_char)
             cur_char_x += 1
-        window_manager.key_window.addnstr(size_properties.key_window_rows - 1, 0, cur_string, size_properties.key_window_cols - 2)
+        window_manager.key_window.addnstr(size_properties.key_window_rows - 1, 0, cur_string,
+                                          size_properties.key_window_cols - 2)
 
         matching_words = print_keys(key_box_window, app_data_dictionary, cur_string, size_properties)
         if len(matching_words) == 1:
-            data_window.addnstr(0, 0, app_data_dictionary[matching_words[0]], 1500)
+            print_data_window_data(window_manager, app_data_dictionary, size_properties, matching_words[0])
+            #data_window.addnstr(0, 0, app_data_dictionary[matching_words[0]], 1500)
         if "exit" in cur_string:
             sys.exit(1)
 
