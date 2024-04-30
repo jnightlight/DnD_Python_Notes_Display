@@ -1,3 +1,6 @@
+import math
+
+
 def get_tab_count(line_string):
     space_count = 0
     tab_count = 0
@@ -8,4 +11,4 @@ def get_tab_count(line_string):
             tab_count += 1
         else:
             break
-    return tab_count + (space_count / 4)
+    return math.ceil(tab_count + (space_count / 4))
