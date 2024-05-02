@@ -15,6 +15,33 @@ MAX_VALID_DISPLAY_COLS = 20
 MAX_VALID_DISPLAY_ROWS = 20
 
 
+# Display Dict should be defined as a dict with a list of categories. EACH category contains EITHER:
+#   A list of more categories OR
+#   A list of string:string key value pairs with actual information
+def print_advanced_keys_recursive(window, display_list, size_properties, indent, cur_row):
+    for internal_dict in display_list:
+        for key in internal_dict.keys():
+            inside = internal_dict[key]
+            if isinstance(inside, str):
+                key = (" "*indent) + key
+                if len(key) > size_properties.max_valid_cols:
+                    key = key[len(key) - (math.fabs(len(key) - size_properties.max_valid_cols))]
+                window.addstr(cur_row, 1, key)
+                cur_row += 1
+                if cur_row >= size_properties.max_valid_rows - 1:
+                    return cur_row
+            elif isinstance(inside, list):
+                key = (" "*indent) + key
+                if len(key) > size_properties.max_valid_cols:
+                    key = key[len(key) - (math.fabs(len(key) - size_properties.max_valid_cols))]
+                window.addstr(cur_row, 1, key)
+                cur_row += 1
+                if cur_row >= size_properties.max_valid_rows - 1:
+                    return cur_row
+                cur_row = print_advanced_keys_recursive(window, inside, size_properties, indent + 1, cur_row)
+    return cur_row
+
+
 def print_keys(window, display_dict, selected_key, size_properties):
     row = 1
     matching_words = []
@@ -82,10 +109,13 @@ def main(stdscr):
     if not os.path.isfile(sys.argv[1]):
         # logging.error("invalid file path provided")
         exit(1)
-    app_data_dictionary = loadFile.populate_app_data_basic(sys.argv[1])
+    #app_data_dictionary = loadFile.populate_app_data_basic(sys.argv[1])
+    app_data_dictionary = loadFile.populate_app_data_yaml(sys.argv[1])
     loop = True
 
-    print_keys(key_box_window, app_data_dictionary, "intro", size_properties)
+    #print_keys(key_box_window, app_data_dictionary, "intro", size_properties)
+    print_advanced_keys_recursive(key_box_window, app_data_dictionary, size_properties, 0, 1)
+
     cur_char_x = 0
     cur_string = ''
     arrow_key_index = 0
@@ -128,10 +158,11 @@ def main(stdscr):
         window_manager.key_window.addnstr(size_properties.key_window_rows - 1, 0, cur_string,
                                           size_properties.key_window_cols - 2)
 
-        matching_words = print_keys(key_box_window, app_data_dictionary, cur_string, size_properties)
-        if len(matching_words) == 1:
-            print_data_window_data(window_manager, app_data_dictionary, size_properties, matching_words[0])
-            #data_window.addnstr(0, 0, app_data_dictionary[matching_words[0]], 1500)
+        #matching_words = print_keys(key_box_window, app_data_dictionary, cur_string, size_properties)
+        print_advanced_keys_recursive(key_box_window, app_data_dictionary, size_properties, 0, 1)
+#        if len(matching_words) == 1:
+#            print_data_window_data(window_manager, app_data_dictionary, size_properties, matching_words[0])
+#            #data_window.addnstr(0, 0, app_data_dictionary[matching_words[0]], 1500)
         if "exit" in cur_string:
             sys.exit(1)
 
