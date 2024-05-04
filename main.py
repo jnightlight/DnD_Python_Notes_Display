@@ -4,8 +4,10 @@ import math
 import curses
 import curses.ascii
 import TerminalSizeProperties
+import helperFunctions
 import loadFile
 import WindowManager
+import KeyWindow, DataWindow
 
 KEY_BOX_WINDOW_HASH = "KEY_BOX_WIND"
 KEY_WINDOW_HASH = "KEY_WIND"
@@ -13,53 +15,6 @@ DATA_BOX_WINDOW_HASH = "DATA_BOX_WIND"
 DATA_WINDOW_HASH = "DATA_WIND"
 MAX_VALID_DISPLAY_COLS = 20
 MAX_VALID_DISPLAY_ROWS = 20
-
-
-# Display Dict should be defined as a dict with a list of categories. EACH category contains EITHER:
-#   A list of more categories OR
-#   A list of string:string key value pairs with actual information
-def print_advanced_keys_recursive(window, display_list, size_properties, indent, cur_row):
-    for internal_dict in display_list:
-        for key in internal_dict.keys():
-            inside = internal_dict[key]
-            if isinstance(inside, str):
-                key = (" "*indent) + key
-                if len(key) > size_properties.max_valid_cols:
-                    key = key[len(key) - (math.fabs(len(key) - size_properties.max_valid_cols))]
-                window.addstr(cur_row, 1, key)
-                cur_row += 1
-                if cur_row >= size_properties.max_valid_rows - 1:
-                    return cur_row
-            elif isinstance(inside, list):
-                key = (" "*indent) + key
-                if len(key) > size_properties.max_valid_cols:
-                    key = key[len(key) - (math.fabs(len(key) - size_properties.max_valid_cols))]
-                window.addstr(cur_row, 1, key)
-                cur_row += 1
-                if cur_row >= size_properties.max_valid_rows - 1:
-                    return cur_row
-                cur_row = print_advanced_keys_recursive(window, inside, size_properties, indent + 1, cur_row)
-    return cur_row
-
-
-def print_keys(window, display_dict, selected_key, size_properties):
-    row = 1
-    matching_words = []
-    if size_properties.max_valid_cols <= MAX_VALID_DISPLAY_COLS or size_properties.max_valid_rows <= MAX_VALID_DISPLAY_ROWS:
-        return matching_words
-    for key in display_dict.keys():
-        if len(key) > size_properties.max_valid_cols:
-            key = key[len(key) - (math.fabs(len(key) - size_properties.max_valid_cols))]
-        attribute = curses.A_NORMAL
-        if selected_key in key:
-            attribute = curses.A_STANDOUT
-            matching_words.append(key)
-        window.addstr(row, 1, key, attribute)
-        row += 1
-        if row >= size_properties.max_valid_rows - 1:
-            break
-    return matching_words
-
 
 def create_windows(size_properties):
     window_manager = WindowManager.WindowManager()
@@ -83,14 +38,6 @@ def create_windows(size_properties):
     return window_manager
 
 
-def print_data_window_data(window_manager, app_data_dictionary, size_properties, data_word):
-    if size_properties.max_valid_cols <= MAX_VALID_DISPLAY_COLS or size_properties.max_valid_rows <= MAX_VALID_DISPLAY_ROWS:
-        return
-    total_size = size_properties.data_window_cols * size_properties.data_window_rows
-    current_cursor_y = 0
-
-    window_manager.data_window.addnstr(0, 0, app_data_dictionary[data_word], math.floor(total_size/1.3))
-
 
 def main(stdscr):
     size_properties = TerminalSizeProperties.TerminalSizeProperties()
@@ -111,10 +58,11 @@ def main(stdscr):
         exit(1)
     #app_data_dictionary = loadFile.populate_app_data_basic(sys.argv[1])
     app_data_dictionary = loadFile.populate_app_data_yaml(sys.argv[1])
+    flat_list = helperFunctions.get_flat_key_list(app_data_dictionary)
     loop = True
 
     #print_keys(key_box_window, app_data_dictionary, "intro", size_properties)
-    print_advanced_keys_recursive(key_box_window, app_data_dictionary, size_properties, 0, 1)
+    KeyWindow.print_advanced_keys_recursive(key_box_window, app_data_dictionary, size_properties, 0, 1)
 
     cur_char_x = 0
     cur_string = ''
@@ -135,20 +83,20 @@ def main(stdscr):
             TerminalSizeProperties.resize_screens(size_properties, window_manager)
             window_manager.clear_all_windows()
         elif in_char in [curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT]:
-            keys = list(app_data_dictionary.keys())
             if in_char == curses.KEY_UP:
                 arrow_key_index -= 1
             elif in_char == curses.KEY_DOWN:
                 arrow_key_index += 1
             if arrow_key_index < 0:
-                arrow_key_index = len(keys)
+                arrow_key_index = len(flat_list)
 
             # ATM, this is a seperate elif statement. Maybe make this all a switch soon
             if in_char == curses.KEY_LEFT:
                 cur_string = ''
                 cur_char_x = 0
             else:
-                cur_string = keys[arrow_key_index % len(keys)]
+                flat_list_element = flat_list[arrow_key_index % len(flat_list)]
+                cur_string = flat_list_element[-1]
                 cur_string = cur_string.strip('\n')
                 cur_char_x = len(cur_string)
         elif curses.ascii.isascii(in_char):
@@ -159,9 +107,9 @@ def main(stdscr):
                                           size_properties.key_window_cols - 2)
 
         #matching_words = print_keys(key_box_window, app_data_dictionary, cur_string, size_properties)
-        print_advanced_keys_recursive(key_box_window, app_data_dictionary, size_properties, 0, 1)
+        KeyWindow.print_advanced_keys_recursive(key_box_window, app_data_dictionary, size_properties, 0, 1)
 #        if len(matching_words) == 1:
-#            print_data_window_data(window_manager, app_data_dictionary, size_properties, matching_words[0])
+#            DataWindow.print_data_window_data(window_manager, app_data_dictionary, size_properties, matching_words[0])
 #            #data_window.addnstr(0, 0, app_data_dictionary[matching_words[0]], 1500)
         if "exit" in cur_string:
             sys.exit(1)

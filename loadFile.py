@@ -76,4 +76,4 @@ def populate_app_data_yaml(filename):
 #                if changed_indent:
 #                    indent_string = "  " * current_indent_level
 #                definition_dict[current_top_level_definition] += indent_string + line
-    return definition_dict
+#    return definition_dict
