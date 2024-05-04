@@ -41,6 +41,20 @@ def get_flat_key_list_recursive(cur_dict, current_depth_key_list):
 
 def get_element_from_flat_index(list, key_path):
     cur_list = list
-    for key in key_path:
-        cur_dict = dict[key]
-    return cur_dict
+    new_cur_list = []
+    key_index = 0
+    should_continue = True
+    while should_continue:
+        for element in cur_list:
+            if isinstance(element, dict) and key_path[key_index] in element.keys():
+                new_cur_list = element[key_path[key_index]]
+                key_index += 1
+                if key_index == len(key_path):
+                    return new_cur_list
+                break
+            else:
+                continue
+        if len(new_cur_list) > 0:
+            cur_list = new_cur_list
+        else:
+            return ""
