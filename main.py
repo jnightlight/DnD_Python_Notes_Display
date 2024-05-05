@@ -119,10 +119,9 @@ def main(stdscr):
             for element in found_element:
                 if isinstance(element, dict):
                     to_print += str(element.keys()) + "\n"
-                    DataWindow.print_data_window_string(window_manager, app_data_dictionary, size_properties,
-                                                        to_print)
+                    DataWindow.print_data_window_string(window_manager, size_properties, to_print)
         elif isinstance(found_element, str):
-            DataWindow.print_data_window_string(window_manager, app_data_dictionary, size_properties, found_element)
+            DataWindow.print_data_window_string(window_manager, size_properties, found_element)
 #        if len(matching_words) == 1:
 #            #data_window.addnstr(0, 0, app_data_dictionary[matching_words[0]], 1500)
         if "exit" in cur_string:
