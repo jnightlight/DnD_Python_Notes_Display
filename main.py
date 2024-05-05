@@ -78,7 +78,6 @@ def main(stdscr):
     app_data_dictionary = loadFile.populate_app_data_yaml(sys.argv[1])
     flat_list = helperFunctions.get_flat_key_list(app_data_dictionary)
     loop = True
-    attack = helperFunctions.get_element_from_flat_index(app_data_dictionary, ["CLASS_SORCERER", "Wild Magic Surge"])
 
     KeyWindow.print_advanced_keys_recursive(key_box_window, app_data_dictionary, [], size_properties, 0, 1)
 
