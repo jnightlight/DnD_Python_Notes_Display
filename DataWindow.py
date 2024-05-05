@@ -5,7 +5,6 @@ INDENT_STRING = "    "
 
 def print_data_window_data(window_manager, app_data_dictionary, size_properties, data_word):
     total_size = size_properties.data_window_cols * size_properties.data_window_rows
-    current_cursor_y = 0
 
     window_manager.data_window.addnstr(0, 0, app_data_dictionary[data_word], math.floor(total_size/1.3))
 
@@ -29,7 +28,6 @@ def print_data_window_string(window_manager, size_properties, to_print):
             line_list.append(cur_line)
             cur_line = INDENT_STRING + line_break_split_list[1] + " "
             line_list_index += 1
-    total_size = size_properties.data_window_cols * size_properties.data_window_rows
 
     print_index = 0
     while print_index < len(line_list) and print_index < size_properties.data_window_rows:
