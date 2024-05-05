@@ -1,6 +1,22 @@
 import math
 import curses
 
+import KeyWindow
+
+
+def create_key_window(size_properties):
+    key_box_window = curses.newwin(size_properties.key_box_window_rows,
+                                   size_properties.key_box_window_cols,
+                                   0,
+                                   0)
+    key_window = key_box_window.derwin(size_properties.key_window_rows,
+                                       size_properties.key_window_cols,
+                                       1,
+                                       1)
+    key_window.keypad(True)
+    return key_box_window, key_window
+
+
 # Display Dict should be defined as a dict with a list of categories. EACH category contains EITHER:
 #   A list of more categories OR
 #   A list of string:string key value pairs with actual information
@@ -12,7 +28,7 @@ def print_advanced_keys_recursive(window, display_list, flat_list_element, size_
             if len(flat_list_element) > 0 and key == flat_list_element[-1]:
                 formatting = curses.A_STANDOUT
             if isinstance(inside, str):
-                key = (" "*indent) + key
+                key = (" " * indent) + key
                 if len(key) > size_properties.max_valid_cols:
                     key = key[len(key) - (math.fabs(len(key) - size_properties.max_valid_cols))]
                 window.addstr(cur_row, 1, key, formatting)
@@ -20,14 +36,15 @@ def print_advanced_keys_recursive(window, display_list, flat_list_element, size_
                 if cur_row >= size_properties.max_valid_rows - 1:
                     return cur_row
             elif isinstance(inside, list):
-                key = (" "*indent) + key
+                key = (" " * indent) + key
                 if len(key) > size_properties.max_valid_cols:
                     key = key[len(key) - (math.fabs(len(key) - size_properties.max_valid_cols))]
                 window.addstr(cur_row, 1, key, formatting)
                 cur_row += 1
                 if cur_row >= size_properties.max_valid_rows - 1:
                     return cur_row
-                cur_row = print_advanced_keys_recursive(window, inside, flat_list_element, size_properties, indent + 1, cur_row)
+                cur_row = print_advanced_keys_recursive(window, inside, flat_list_element, size_properties, indent + 1,
+                                                        cur_row)
     return cur_row
 
 

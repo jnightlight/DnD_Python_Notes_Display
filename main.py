@@ -16,25 +16,11 @@ DATA_WINDOW_HASH = "DATA_WIND"
 MAX_VALID_DISPLAY_COLS = 20
 MAX_VALID_DISPLAY_ROWS = 20
 
+
 def create_windows(size_properties):
     window_manager = WindowManager.WindowManager()
-    window_manager.key_box_window = curses.newwin(size_properties.key_box_window_rows,
-                                                  size_properties.key_box_window_cols,
-                                                  0,
-                                                  0)
-    window_manager.key_window = window_manager.key_box_window.derwin(size_properties.key_window_rows,
-                                                                     size_properties.key_window_cols,
-                                                                     1,
-                                                                     1)
-    window_manager.key_window.keypad(True)
-    window_manager.data_box_window = curses.newwin(size_properties.data_box_window_rows,
-                                                   size_properties.data_box_window_cols,
-                                                   0,
-                                                   size_properties.data_box_window_x)
-    window_manager.data_window = window_manager.data_box_window.derwin(size_properties.data_window_rows,
-                                                                       size_properties.data_window_cols,
-                                                                       1,
-                                                                       1)
+    window_manager.key_box_window, window_manager.key_window = KeyWindow.create_key_window(size_properties)
+    window_manager.data_box_window, window_manager.data_window = DataWindow.create_data_window(size_properties)
     return window_manager
 
 
@@ -94,7 +80,7 @@ def main(stdscr):
     loop = True
     attack = helperFunctions.get_element_from_flat_index(app_data_dictionary, ["CLASS_SORCERER", "Wild Magic Surge"])
 
-    KeyWindow.print_advanced_keys_recursive(key_box_window, app_data_dictionary, [],  size_properties, 0, 1)
+    KeyWindow.print_advanced_keys_recursive(key_box_window, app_data_dictionary, [], size_properties, 0, 1)
 
     cur_char_x = 0
     cur_string = ''
@@ -107,12 +93,15 @@ def main(stdscr):
             continue
 
         # MODIFYING:
-        cur_char_x, cur_string, arrow_key_index, flat_list_element = process_input(in_char, cur_char_x, cur_string, size_properties, window_manager, arrow_key_index, flat_list)
+        cur_char_x, cur_string, arrow_key_index, flat_list_element = process_input(in_char, cur_char_x, cur_string,
+                                                                                   size_properties, window_manager,
+                                                                                   arrow_key_index, flat_list)
         window_manager.key_window.addnstr(size_properties.key_window_rows - 1, 0, cur_string,
                                           size_properties.key_window_cols - 2)
 
         #matching_words = print_keys(key_box_window, app_data_dictionary, cur_string, size_properties)
-        KeyWindow.print_advanced_keys_recursive(key_box_window, app_data_dictionary, flat_list_element, size_properties, 0, 1)
+        KeyWindow.print_advanced_keys_recursive(key_box_window, app_data_dictionary, flat_list_element, size_properties,
+                                                0, 1)
         found_element = helperFunctions.get_element_from_flat_index(app_data_dictionary, flat_list_element)
         if isinstance(found_element, list):
             to_print = ""
@@ -122,8 +111,8 @@ def main(stdscr):
                     DataWindow.print_data_window_string(window_manager, size_properties, to_print)
         elif isinstance(found_element, str):
             DataWindow.print_data_window_string(window_manager, size_properties, found_element)
-#        if len(matching_words) == 1:
-#            #data_window.addnstr(0, 0, app_data_dictionary[matching_words[0]], 1500)
+        #        if len(matching_words) == 1:
+        #            #data_window.addnstr(0, 0, app_data_dictionary[matching_words[0]], 1500)
         if "exit" in cur_string:
             sys.exit(1)
 

@@ -1,12 +1,25 @@
 import math
+import curses
 
 INDENT_STRING = "    "
+
+
+def create_data_window(size_properties):
+    data_box_window = curses.newwin(size_properties.data_box_window_rows,
+                                    size_properties.data_box_window_cols,
+                                    0,
+                                    size_properties.data_box_window_x)
+    data_window = data_box_window.derwin(size_properties.data_window_rows,
+                                         size_properties.data_window_cols,
+                                         1,
+                                         1)
+    return data_box_window, data_window
 
 
 def print_data_window_data(window_manager, app_data_dictionary, size_properties, data_word):
     total_size = size_properties.data_window_cols * size_properties.data_window_rows
 
-    window_manager.data_window.addnstr(0, 0, app_data_dictionary[data_word], math.floor(total_size/1.3))
+    window_manager.data_window.addnstr(0, 0, app_data_dictionary[data_word], math.floor(total_size / 1.3))
 
 
 def print_data_window_string(window_manager, size_properties, to_print):
