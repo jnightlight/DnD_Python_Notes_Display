@@ -1,5 +1,8 @@
 import math
 
+INDENT_STRING = "    "
+
+
 def print_data_window_data(window_manager, app_data_dictionary, size_properties, data_word):
     total_size = size_properties.data_window_cols * size_properties.data_window_rows
     current_cursor_y = 0
@@ -10,9 +13,11 @@ def print_data_window_data(window_manager, app_data_dictionary, size_properties,
 def print_data_window_string(window_manager, size_properties, to_print):
     line_list_index = 0
     line_list = []
-    cur_line = "    "
+    cur_line = INDENT_STRING
     word_list = to_print.split(" ")
     for word in word_list:
+        if len(word) <= 0:
+            continue
         if len(cur_line) + len(word) >= size_properties.data_window_cols:
             line_list.append(cur_line)
             cur_line = word + " "
@@ -22,10 +27,9 @@ def print_data_window_string(window_manager, size_properties, to_print):
         if "\n" in word:
             line_break_split_list = word.split("\n")
             line_list.append(cur_line)
-            cur_line = "    " + line_break_split_list[1] + " "
+            cur_line = INDENT_STRING + line_break_split_list[1] + " "
             line_list_index += 1
     total_size = size_properties.data_window_cols * size_properties.data_window_rows
-    current_cursor_y = 0
 
     print_index = 0
     while print_index < len(line_list) and print_index < size_properties.data_window_rows:
