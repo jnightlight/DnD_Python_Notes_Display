@@ -3,6 +3,12 @@ import curses
 
 
 class TerminalSizeProperties:
+
+    def __init__(self, curses_lines, curses_cols):
+        self.max_valid_rows = curses_lines - 1
+        self.max_valid_cols = curses_cols - 1
+        self.crunch_numbers()
+
     max_valid_cols = 0
     max_valid_rows = 0
 

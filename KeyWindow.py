@@ -1,9 +1,6 @@
 import math
 import curses
 
-import KeyWindow
-
-
 def create_key_window(size_properties):
     key_box_window = curses.newwin(size_properties.key_box_window_rows,
                                    size_properties.key_box_window_cols,
