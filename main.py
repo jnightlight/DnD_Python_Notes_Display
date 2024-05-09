@@ -2,6 +2,7 @@ import curses
 import curses.ascii
 import os
 import sys
+from enum import Enum
 
 import DataWindow
 import KeyWindow
@@ -21,42 +22,51 @@ def create_windows(size_properties):
     return window_manager
 
 
+class InputActions(Enum):
+    BACKSPACE = 0
+    NEW_CHAR = 1
+    CHANGE_INDEX = 2
+    CLEAR_SEARCH = 3
+    RESIZE = 4
+
+
 def process_input(in_char, cur_string, size_properties, window_manager, arrow_key_index, flat_list):
-    should_search = False
+    input_action = InputActions.BACKSPACE
     # Replace current search string
     flat_list_element = []
     # Backspace back a character
     if in_char == curses.ascii.BS or in_char == curses.ascii.DEL or in_char == curses.KEY_BACKSPACE or in_char == curses.KEY_DC:
+        input_action = InputActions.BACKSPACE
         # If we're at the beginning, noop. Otherwise, pop most recent char and queue up an updated search
         if len(cur_string) > 0:
             cur_string = cur_string[:-1]
-            should_search = True
     # Screen resize
     elif in_char == curses.KEY_RESIZE:
+        input_action = InputActions.RESIZE
         TerminalSizeProperties.resize_screens(size_properties, window_manager)
         # Clearing here in case there's not an out of bounds draw on a future refresh accidentally
         window_manager.clear_all_windows()
     # Incoming arrow keys for navigating key window
-    elif in_char in [curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT]:
+    elif in_char in [curses.KEY_UP, curses.KEY_DOWN, curses.KEY_RIGHT]:
         if in_char == curses.KEY_UP:
+            input_action = InputActions.CHANGE_INDEX
             arrow_key_index -= 1
             # Wraparound
             if arrow_key_index < 0:
                 arrow_key_index = len(flat_list)
         elif in_char == curses.KEY_DOWN:
             arrow_key_index += 1
-        elif in_char == curses.KEY_LEFT:
-            cur_string = ''
-
         flat_list_element = flat_list[arrow_key_index % len(flat_list)]
         cur_string = flat_list_element[-1]
         cur_string = cur_string.strip('\n')
-
+    elif in_char == curses.KEY_LEFT:
+        input_action = InputActions.CLEAR_SEARCH
+        cur_string = ''
     elif curses.ascii.isascii(in_char):
+        input_action = InputActions.NEW_CHAR
         window_manager.key_window.addch(size_properties.key_window_rows - 1, len(cur_string), in_char)
         cur_string += chr(in_char)
-        should_search = True
-    return cur_string, arrow_key_index, flat_list_element, should_search
+    return cur_string, arrow_key_index, flat_list_element, input_action
 
 
 def main(stdscr):
@@ -92,7 +102,7 @@ def main(stdscr):
             continue
 
         # This is where we process the incoming character and update some data
-        cur_string, arrow_key_index, flat_list_element, should_search = process_input(in_char,
+        cur_string, arrow_key_index, flat_list_element, input_action = process_input(in_char,
                                                                                       cur_string,
                                                                                       size_properties,
                                                                                       window_manager,
