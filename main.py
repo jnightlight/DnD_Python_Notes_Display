@@ -82,22 +82,29 @@ def main(stdscr):
     arrow_key_index = 0
     loop = True
     while loop:
+        #Start the loop simply: refresh updated screens to user, then wait on chracter input
         window_manager.refresh_and_draw_boxes()
         in_char = window_manager.key_window.getch(size_properties.key_window_rows - 1, cur_char_x)
+
+        #Strictly unnecessary and frankly wasteful, but hey, nothing here is crucial enough for this level of
+        #  work. TODO maybe clean it up and only refresh when necessary when feature complete
         window_manager.clear_all_windows()
         if curses.LINES <= MAX_VALID_DISPLAY_ROWS or curses.COLS <= MAX_VALID_DISPLAY_COLS:
             continue
 
-        # MODIFYING:
+        # This is where we process the incoming character and update some data
         cur_char_x, cur_string, arrow_key_index, flat_list_element, should_search = process_input(in_char, cur_char_x,
                                                                                                    cur_string,
                                                                                                    size_properties,
                                                                                                    window_manager,
                                                                                                    arrow_key_index,
                                                                                                    flat_list)
+
+        #Adding the current text string to the key window. This can probably be moved to KeyWindow soon
         window_manager.key_window.addnstr(size_properties.key_window_rows - 1, 0, cur_string,
                                           size_properties.key_window_cols - 2)
 
+        #Refreshing the keys in the KeyWindow
         KeyWindow.print_advanced_keys_recursive(window_manager.key_box_window, app_data_dictionary, flat_list_element, size_properties,
                                                 0, 1)
         found_element = helperFunctions.get_element_from_flat_index(app_data_dictionary, flat_list_element)
