@@ -21,44 +21,42 @@ def create_windows(size_properties):
     return window_manager
 
 
-def process_input(in_char, cur_char_x, cur_string, size_properties, window_manager, arrow_key_index, flat_list):
+def process_input(in_char, cur_string, size_properties, window_manager, arrow_key_index, flat_list):
     should_search = False
     # Replace current search string
     flat_list_element = []
-    #Backspace back a character
+    # Backspace back a character
     if in_char == curses.ascii.BS or in_char == curses.ascii.DEL or in_char == curses.KEY_BACKSPACE or in_char == curses.KEY_DC:
-        if cur_char_x > 0:
+        # If we're at the beginning, noop. Otherwise, pop most recent char and queue up an updated search
+        if len(cur_string) > 0:
             cur_string = cur_string[:-1]
-            cur_char_x -= 1
             should_search = True
     # Screen resize
     elif in_char == curses.KEY_RESIZE:
         TerminalSizeProperties.resize_screens(size_properties, window_manager)
+        # Clearing here in case there's not an out of bounds draw on a future refresh accidentally
         window_manager.clear_all_windows()
     # Incoming arrow keys for navigating key window
     elif in_char in [curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT]:
         if in_char == curses.KEY_UP:
             arrow_key_index -= 1
+            # Wraparound
+            if arrow_key_index < 0:
+                arrow_key_index = len(flat_list)
         elif in_char == curses.KEY_DOWN:
             arrow_key_index += 1
-        if arrow_key_index < 0:
-            arrow_key_index = len(flat_list)
-
-        # ATM, this is a seperate elif statement. Maybe make this all a switch soon
-        if in_char == curses.KEY_LEFT:
+        elif in_char == curses.KEY_LEFT:
             cur_string = ''
-            cur_char_x = 0
-        else:
-            flat_list_element = flat_list[arrow_key_index % len(flat_list)]
-            cur_string = flat_list_element[-1]
-            cur_string = cur_string.strip('\n')
-            cur_char_x = len(cur_string)
+
+        flat_list_element = flat_list[arrow_key_index % len(flat_list)]
+        cur_string = flat_list_element[-1]
+        cur_string = cur_string.strip('\n')
+
     elif curses.ascii.isascii(in_char):
-        window_manager.key_window.addch(size_properties.key_window_rows - 1, cur_char_x, in_char)
+        window_manager.key_window.addch(size_properties.key_window_rows - 1, len(cur_string), in_char)
         cur_string += chr(in_char)
-        cur_char_x += 1
         should_search = True
-    return cur_char_x, cur_string, arrow_key_index, flat_list_element, should_search
+    return cur_string, arrow_key_index, flat_list_element, should_search
 
 
 def main(stdscr):
@@ -75,7 +73,8 @@ def main(stdscr):
     window_manager = create_windows(size_properties)
 
     #Initial printing of data
-    KeyWindow.print_advanced_keys_recursive(window_manager.key_box_window, app_data_dictionary, [], size_properties, 0, 1)
+    KeyWindow.print_advanced_keys_recursive(window_manager.key_box_window, app_data_dictionary, [], size_properties, 0,
+                                            1)
 
     cur_char_x = 0
     cur_string = ''
@@ -93,19 +92,20 @@ def main(stdscr):
             continue
 
         # This is where we process the incoming character and update some data
-        cur_char_x, cur_string, arrow_key_index, flat_list_element, should_search = process_input(in_char, cur_char_x,
-                                                                                                   cur_string,
-                                                                                                   size_properties,
-                                                                                                   window_manager,
-                                                                                                   arrow_key_index,
-                                                                                                   flat_list)
+        cur_string, arrow_key_index, flat_list_element, should_search = process_input(in_char,
+                                                                                      cur_string,
+                                                                                      size_properties,
+                                                                                      window_manager,
+                                                                                      arrow_key_index,
+                                                                                      flat_list)
 
         #Adding the current text string to the key window. This can probably be moved to KeyWindow soon
         window_manager.key_window.addnstr(size_properties.key_window_rows - 1, 0, cur_string,
                                           size_properties.key_window_cols - 2)
 
         #Refreshing the keys in the KeyWindow
-        KeyWindow.print_advanced_keys_recursive(window_manager.key_box_window, app_data_dictionary, flat_list_element, size_properties,
+        KeyWindow.print_advanced_keys_recursive(window_manager.key_box_window, app_data_dictionary, flat_list_element,
+                                                size_properties,
                                                 0, 1)
         found_element = helperFunctions.get_element_from_flat_index(app_data_dictionary, flat_list_element)
         if isinstance(found_element, list):
