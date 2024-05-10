@@ -18,7 +18,7 @@ def get_flat_key_list(yaml_list):
     full_list = []
     depth_list = []
     for in_dict in yaml_list:
-         full_list += get_flat_key_list_recursive(in_dict, depth_list)
+        full_list += get_flat_key_list_recursive(in_dict, depth_list)
     return full_list
 
 
@@ -39,10 +39,11 @@ def get_flat_key_list_recursive(cur_dict, current_depth_key_list):
         current_depth_key_list.remove(key)
     return flat_key_list
 
-def get_element_from_flat_index(list, key_path):
+
+def get_element_from_flat_index(app_data_dict, key_path):
     if len(key_path) == 0:
         return ""
-    cur_list = list
+    cur_list = app_data_dict
     new_cur_list = []
     key_index = 0
     should_continue = True

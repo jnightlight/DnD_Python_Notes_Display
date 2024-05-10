@@ -1,5 +1,5 @@
-import math
 import curses
+import math
 
 INDENT_STRING = "    "
 
@@ -46,3 +46,14 @@ def print_data_window_string(window_manager, size_properties, to_print):
     while print_index < len(line_list) and print_index < size_properties.data_window_rows:
         window_manager.data_window.addnstr(print_index, 0, line_list[print_index], size_properties.data_window_cols)
         print_index += 1
+
+
+def print_data_window_text(found_element, window_manager, size_properties):
+    if isinstance(found_element, list):
+        to_print = ""
+        for element in found_element:
+            if isinstance(element, dict):
+                to_print += str(element.keys()) + "\n"
+                print_data_window_string(window_manager, size_properties, to_print)
+    elif isinstance(found_element, str):
+        print_data_window_string(window_manager, size_properties, found_element)

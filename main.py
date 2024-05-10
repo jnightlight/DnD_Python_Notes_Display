@@ -92,7 +92,7 @@ def main(stdscr):
         if curses.LINES <= MAX_VALID_DISPLAY_ROWS or curses.COLS <= MAX_VALID_DISPLAY_COLS:
             continue
 
-        # This is where we process the incoming character and update some data
+        # Updating the arrow key index (if it's changed) and grabbing the input action to work off of.
         arrow_key_index, input_action = process_input(in_char,
                                                       size_properties,
                                                       window_manager,
@@ -100,6 +100,7 @@ def main(stdscr):
                                                       flat_list)
 
         flat_list_element = []
+        # Processing our state based on incoming key
         match input_action:
             case InputActions.BACKSPACE:
                 # If we're at the beginning, noop. Otherwise, pop most recent char and queue up an updated search
@@ -122,7 +123,7 @@ def main(stdscr):
                 # Clearing here in case there's not an out of bounds draw on a future refresh accidentally
                 window_manager.clear_all_windows()
 
-        #Adding the current text string to the key window. This can probably be moved to KeyWindow soon
+        # Adding the current text string to the key window. Might encapsulate the "cur_string" data into the keywindow
         window_manager.key_window.addnstr(size_properties.key_window_rows - 1, 0, cur_string,
                                           size_properties.key_window_cols - 2)
 
@@ -130,17 +131,10 @@ def main(stdscr):
         KeyWindow.print_advanced_keys_recursive(window_manager.key_box_window, app_data_dictionary, flat_list_element,
                                                 size_properties,
                                                 0, 1)
+
         found_element = helperFunctions.get_element_from_flat_index(app_data_dictionary, flat_list_element)
-        if isinstance(found_element, list):
-            to_print = ""
-            for element in found_element:
-                if isinstance(element, dict):
-                    to_print += str(element.keys()) + "\n"
-                    DataWindow.print_data_window_string(window_manager, size_properties, to_print)
-        elif isinstance(found_element, str):
-            DataWindow.print_data_window_string(window_manager, size_properties, found_element)
-        #        if len(matching_words) == 1:
-        #            #data_window.addnstr(0, 0, app_data_dictionary[matching_words[0]], 1500)
+        DataWindow.print_data_window_text(found_element, window_manager, size_properties)
+
         if "exit" in cur_string:
             sys.exit(1)
 
