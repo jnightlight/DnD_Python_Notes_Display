@@ -1,5 +1,6 @@
-import math
 import curses
+import math
+
 
 def create_key_window(size_properties):
     key_box_window = curses.newwin(size_properties.key_box_window_rows,
@@ -22,7 +23,11 @@ def print_advanced_keys_recursive(window, display_list, flat_list_element, size_
         for key in internal_dict.keys():
             inside = internal_dict[key]
             formatting = curses.A_NORMAL
-            if len(flat_list_element) > 0 and key == flat_list_element[-1]:
+            bold = False
+            for path in flat_list_element:
+                if key in path[-1]:
+                    bold = True
+            if len(flat_list_element) > 0 and bold:
                 formatting = curses.A_STANDOUT
             if isinstance(inside, str):
                 key = (" " * indent) + key

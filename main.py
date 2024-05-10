@@ -123,17 +123,23 @@ def main(stdscr):
                 # Clearing here in case there's not an out of bounds draw on a future refresh accidentally
                 window_manager.clear_all_windows()
 
+        matching_searches = []
+        for data_path in flat_list:
+            if cur_string in data_path[-1]:
+                matching_searches.append(data_path)
+
         # Adding the current text string to the key window. Might encapsulate the "cur_string" data into the keywindow
         window_manager.key_window.addnstr(size_properties.key_window_rows - 1, 0, cur_string,
                                           size_properties.key_window_cols - 2)
 
         #Refreshing the keys in the KeyWindow
-        KeyWindow.print_advanced_keys_recursive(window_manager.key_box_window, app_data_dictionary, flat_list_element,
+        KeyWindow.print_advanced_keys_recursive(window_manager.key_box_window, app_data_dictionary, matching_searches,
                                                 size_properties,
                                                 0, 1)
 
-        found_element = helperFunctions.get_element_from_flat_index(app_data_dictionary, flat_list_element)
-        DataWindow.print_data_window_text(found_element, window_manager, size_properties)
+        if (len(matching_searches) == 1):
+            found_element = helperFunctions.get_element_from_flat_index(app_data_dictionary, matching_searches[0])
+            DataWindow.print_data_window_text(found_element, window_manager, size_properties)
 
         if "exit" in cur_string:
             sys.exit(1)
