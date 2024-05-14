@@ -1,5 +1,4 @@
 import curses
-import math
 
 INDENT_STRING = "    "
 
@@ -16,42 +15,84 @@ def create_data_window(size_properties):
     return data_box_window, data_window
 
 
-def print_data_window_data(window_manager, app_data_dictionary, size_properties, data_word):
-    total_size = size_properties.data_window_cols * size_properties.data_window_rows
-
-    window_manager.data_window.addnstr(0, 0, app_data_dictionary[data_word], math.floor(total_size / 1.3))
-
-
-def print_data_window_string(window_manager, size_properties, to_print):
-    line_list = []
-    cur_line = INDENT_STRING
-    word_list = to_print.split(" ")
-    for word in word_list:
-        if len(word) <= 0:
-            continue
-        if len(cur_line) + len(word) >= size_properties.data_window_cols:
-            line_list.append(cur_line)
-            cur_line = word + " "
-        else:
-            cur_line += word + " "
-        if "\n" in word:
-            line_break_split_list = word.split("\n")
-            line_list.append(cur_line)
-            cur_line = INDENT_STRING + line_break_split_list[1] + " "
-
-    print_index = 0
-    while print_index < len(line_list) and print_index < size_properties.data_window_rows:
-        window_manager.data_window.addnstr(print_index, 0, line_list[print_index], size_properties.data_window_cols)
-        print_index += 1
-
-
 class WordAndFormat:
     word = ''
     curses_attributes = curses.A_NORMAL
 
-    def __init__(self, word, curses_attributes):
+    def __init__(self, word="", curses_attributes=curses.A_NORMAL):
         self.word = word
         self.format = curses_attributes
+
+    def __str__(self):
+        return "(" + self.word + ", " + str(self.format) + ")"
+
+    def __eq__(self, other):
+        return self.word == other.word and self.format == other.format
+
+
+def add_formatting(formatting, format_to_add):
+    return formatting | format_to_add
+
+
+def remove_formatting(formatting, format_to_remove):
+    return formatting & ~format_to_remove
+
+
+def split_entry_into_formatted_lines_of_words(size_properties, to_print):
+    current_visual_line = INDENT_STRING
+    line_list = []
+    line_words = []
+    word_list = to_print.split(" ")
+    formatting = curses.A_NORMAL
+    for word in word_list:
+        if len(word) <= 0:
+            continue
+        # formatting, need to move this to it's own function or something.
+        #   IE: check if starts/ends w/ "<" and ">", then do a formatting check, otherwise fallthrough
+        if word.strip() == "<bold>":
+            formatting = add_formatting(formatting, curses.A_BOLD)
+            continue
+        if word.strip() == "</bold>":
+            formatting = remove_formatting(formatting, curses.A_BOLD)
+            continue
+        if word.strip() == "<italic>":
+            formatting = add_formatting(formatting, curses.A_ITALIC)
+            continue
+        if word.strip() == "</italic>":
+            formatting = remove_formatting(formatting, curses.A_ITALIC)
+            continue
+        if word == "<highlight>":
+            formatting = add_formatting(formatting, curses.A_STANDOUT)
+            continue
+        if word == "</highlight>":
+            formatting = remove_formatting(formatting, curses.A_STANDOUT)
+            continue
+        if word == "<blink>":
+            formatting = add_formatting(formatting, curses.A_BLINK)
+            continue
+        if word == "</blink>":
+            formatting = remove_formatting(formatting, curses.A_BLINK)
+            continue
+
+        fancyWord = WordAndFormat(word, formatting)
+        if len(current_visual_line) + len(word) >= size_properties.data_window_cols:
+            line_list.append(line_words)
+            current_visual_line = word + " "
+            line_words = [fancyWord]
+        else:
+            current_visual_line += word + " "
+            line_words.append(fancyWord)
+
+        if "\n" in word:
+            line_break_split_list = word.split("\n")
+            line_words[-1].word = line_break_split_list[0]
+            line_list.append(line_words)
+            current_visual_line = INDENT_STRING + line_break_split_list[1] + " "
+            fancyWord = WordAndFormat(INDENT_STRING + line_break_split_list[1], formatting)
+            line_words = [fancyWord]
+    if len(line_words) > 0:
+        line_list.append(line_words)
+    return line_list
 
 
 def print_data_window_string_by_word(window_manager, size_properties, to_print):
@@ -63,12 +104,31 @@ def print_data_window_string_by_word(window_manager, size_properties, to_print):
     for word in word_list:
         if len(word) <= 0:
             continue
-
-        if word == "<bold>":
-            formatting = formatting | curses.A_BOLD | curses.A_ITALIC | curses.A_BLINK
+        # formatting, need to move this to it's own function or something.
+        #   IE: check if starts/ends w/ "<" and ">", then do a formatting check, otherwise fallthrough
+        if word.strip() == "<bold>":
+            formatting = add_formatting(formatting, curses.A_BOLD)
             continue
-        if word == "</bold>":
-            formatting = curses.A_NORMAL
+        if word.strip() == "</bold>":
+            formatting = remove_formatting(formatting, curses.A_BOLD)
+            continue
+        if word.strip() == "<italic>":
+            formatting = add_formatting(formatting, curses.A_ITALIC)
+            continue
+        if word.strip() == "</italic>":
+            formatting = remove_formatting(formatting, curses.A_ITALIC)
+            continue
+        if word == "<highlight>":
+            formatting = add_formatting(formatting, curses.A_STANDOUT)
+            continue
+        if word == "</highlight>":
+            formatting = remove_formatting(formatting, curses.A_STANDOUT)
+            continue
+        if word == "<blink>":
+            formatting = add_formatting(formatting, curses.A_BLINK)
+            continue
+        if word == "</blink>":
+            formatting = remove_formatting(formatting, curses.A_BLINK)
             continue
 
         fancyWord = WordAndFormat(word, formatting)
