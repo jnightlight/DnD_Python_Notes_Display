@@ -1,3 +1,30 @@
+import curses
+
+
+def create_key_window(size_properties):
+    key_box_window = curses.newwin(size_properties.key_box_window_rows,
+                                   size_properties.key_box_window_cols,
+                                   0,
+                                   0)
+    key_window = key_box_window.derwin(size_properties.key_window_rows,
+                                       size_properties.key_window_cols,
+                                       1,
+                                       1)
+    key_window.keypad(True)
+    return key_box_window, key_window
+
+
+def create_data_window(size_properties):
+    data_box_window = curses.newwin(size_properties.data_box_window_rows,
+                                    size_properties.data_box_window_cols,
+                                    0,
+                                    size_properties.data_box_window_x)
+    data_window = data_box_window.derwin(size_properties.data_window_rows,
+                                         size_properties.data_window_cols,
+                                         1,
+                                         1)
+    return data_box_window, data_window
+
 
 def safe_clear(window):
     if not window == 0:

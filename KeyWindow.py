@@ -2,19 +2,6 @@ import curses
 import math
 
 
-def create_key_window(size_properties):
-    key_box_window = curses.newwin(size_properties.key_box_window_rows,
-                                   size_properties.key_box_window_cols,
-                                   0,
-                                   0)
-    key_window = key_box_window.derwin(size_properties.key_window_rows,
-                                       size_properties.key_window_cols,
-                                       1,
-                                       1)
-    key_window.keypad(True)
-    return key_box_window, key_window
-
-
 # Display Dict should be defined as a dict with a list of categories. EACH category contains EITHER:
 #   A list of more categories OR
 #   A list of string:string key value pairs with actual information

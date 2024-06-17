@@ -18,8 +18,8 @@ MAX_VALID_DISPLAY_ROWS = 10
 
 def create_windows(size_properties):
     window_manager = WindowManager.WindowManager()
-    window_manager.key_box_window, window_manager.key_window = KeyWindow.create_key_window(size_properties)
-    window_manager.data_box_window, window_manager.data_window = DataWindow.create_data_window(size_properties)
+    window_manager.key_box_window, window_manager.key_window = WindowManager.create_key_window(size_properties)
+    window_manager.data_box_window, window_manager.data_window = WindowManager.create_data_window(size_properties)
     return window_manager
 
 
