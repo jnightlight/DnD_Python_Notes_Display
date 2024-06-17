@@ -1,5 +1,7 @@
 import curses
 
+import KeyWindow
+
 
 def create_key_window(size_properties):
     key_box_window = curses.newwin(size_properties.key_box_window_rows,
@@ -43,10 +45,9 @@ def safe_box_and_refresh(window):
 
 
 class WindowManager:
-    key_window = 0
-    key_box_window = 0
-    data_window = 0
-    data_box_window = 0
+    def __init__(self, size_properties):
+        self.key_box_window, self.key_window = create_key_window(size_properties)
+        self.data_box_window, self.data_window = create_data_window(size_properties)
 
     def clear_all_windows(self):
         safe_clear(self.key_window)
@@ -59,3 +60,7 @@ class WindowManager:
         safe_box_and_refresh(self.key_box_window)
         safe_refresh(self.key_window)
         safe_refresh(self.data_window)
+
+    def update_key_window_view(self, app_data_dictionary, flat_list_element, size_properties):
+        KeyWindow.print_advanced_keys_recursive(self.key_box_window, app_data_dictionary, flat_list_element,
+                                                size_properties, 0, 1)

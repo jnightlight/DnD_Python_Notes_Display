@@ -5,7 +5,6 @@ import sys
 
 import DataWindow
 import InputManager
-import KeyWindow
 import TerminalSizeProperties
 import WindowManager
 import helperFunctions
@@ -16,16 +15,10 @@ MAX_VALID_DISPLAY_COLS = 10
 MAX_VALID_DISPLAY_ROWS = 10
 
 
-def create_windows(size_properties):
-    window_manager = WindowManager.WindowManager()
-    window_manager.key_box_window, window_manager.key_window = WindowManager.create_key_window(size_properties)
-    window_manager.data_box_window, window_manager.data_window = WindowManager.create_data_window(size_properties)
-    return window_manager
-
-
 def main(stdscr):
     # Bail if not a file
     if not os.path.isfile(sys.argv[1]):
+        print("This does not appear to be a file, exiting: " + sys.argv[1])
         exit(1)
 
     # Since it's a valid file, try to load it and populate the flat list. For now just bail if we can't parse
@@ -34,11 +27,10 @@ def main(stdscr):
 
     # Initialize GUI with curses
     size_properties = TerminalSizeProperties.TerminalSizeProperties(curses.LINES, curses.COLS)
-    window_manager = create_windows(size_properties)
+    window_manager = WindowManager.WindowManager(size_properties)
 
-    # Initial printing of data
-    KeyWindow.print_advanced_keys_recursive(window_manager.key_box_window, app_data_dictionary, [], size_properties, 0,
-                                            1)
+    # Initial printing of Key_Window
+    window_manager.update_key_window_view(app_data_dictionary, [], size_properties)
 
     cur_char_x = 0
     cur_string = ''
@@ -92,9 +84,7 @@ def main(stdscr):
                                           size_properties.key_window_cols - 2)
 
         # Refreshing the keys in the KeyWindow
-        KeyWindow.print_advanced_keys_recursive(window_manager.key_box_window, app_data_dictionary, matching_searches,
-                                                size_properties,
-                                                0, 1)
+        window_manager.update_key_window_view(app_data_dictionary, matching_searches, size_properties)
 
         if len(matching_searches) == 1:
             found_element = helperFunctions.get_element_from_flat_index(app_data_dictionary, matching_searches[0])
