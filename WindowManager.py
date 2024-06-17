@@ -1,7 +1,7 @@
 import curses
 
 import DataWindow
-import KeyWindow
+import KeyWindowManager
 
 
 def create_key_window(size_properties):
@@ -48,6 +48,8 @@ def safe_box_and_refresh(window):
 class WindowManager:
     def __init__(self, size_properties):
         self.key_box_window, self.key_window = create_key_window(size_properties)
+        self.key_window_manager = KeyWindowManager.KeyWindowManager(self.key_window, self.key_box_window)
+
         self.data_box_window, self.data_window = create_data_window(size_properties)
 
     def clear_all_windows(self):
@@ -63,8 +65,8 @@ class WindowManager:
         safe_refresh(self.data_window)
 
     def update_key_window_view(self, app_data_dictionary, flat_list_element, size_properties):
-        KeyWindow.print_advanced_keys_recursive(self.key_box_window, app_data_dictionary, flat_list_element,
-                                                size_properties, 0, 1)
+        self.key_window_manager.print_advanced_keys_recursive(app_data_dictionary, flat_list_element, size_properties,
+                                                              0, 1)
 
     def update_data_window_view(self, found_element, window_manager, size_properties):
         DataWindow.print_data_window_text(found_element, window_manager, size_properties)
