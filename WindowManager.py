@@ -1,5 +1,6 @@
 import curses
 
+import DataWindow
 import KeyWindow
 
 
@@ -64,3 +65,6 @@ class WindowManager:
     def update_key_window_view(self, app_data_dictionary, flat_list_element, size_properties):
         KeyWindow.print_advanced_keys_recursive(self.key_box_window, app_data_dictionary, flat_list_element,
                                                 size_properties, 0, 1)
+
+    def update_data_window_view(self, found_element, window_manager, size_properties):
+        DataWindow.print_data_window_text(found_element, window_manager, size_properties)

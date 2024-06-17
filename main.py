@@ -3,7 +3,6 @@ import curses.ascii
 import os
 import sys
 
-import DataWindow
 import InputManager
 import TerminalSizeProperties
 import WindowManager
@@ -79,7 +78,7 @@ def main(stdscr):
             if cur_string in data_path[-1]:
                 matching_searches.append(data_path)
 
-        # Adding the current text string to the key window. Might encapsulate the "cur_string" data into the keywindow
+        # Adding the current text string to the key window. Might encapsulate the "cur_string" data into the key_window
         window_manager.key_window.addnstr(size_properties.key_window_rows - 1, 0, cur_string,
                                           size_properties.key_window_cols - 2)
 
@@ -88,7 +87,7 @@ def main(stdscr):
 
         if len(matching_searches) == 1:
             found_element = helperFunctions.get_element_from_flat_index(app_data_dictionary, matching_searches[0])
-            DataWindow.print_data_window_text(found_element, window_manager, size_properties)
+            window_manager.update_data_window_view(found_element, window_manager, size_properties)
 
         if "exit" in cur_string:
             sys.exit(1)
