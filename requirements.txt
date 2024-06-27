@@ -1,0 +1,3 @@
+#Yaml for file reading, curses for UI
+PyYAML
+windows-curses
