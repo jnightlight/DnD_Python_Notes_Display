@@ -29,7 +29,7 @@ def main(stdscr):
     window_manager = WindowManager.WindowManager(size_properties)
 
     # Initial printing of Key_Window
-    window_manager.update_key_window_view(app_data_dictionary, [], size_properties)
+    window_manager.update_key_window_view(flat_list, size_properties, "", 0)
 
     cur_char_x = 0
     cur_string = ''
@@ -83,7 +83,7 @@ def main(stdscr):
                                           size_properties.key_window_cols - 2)
 
         # Refreshing the keys in the KeyWindow
-        window_manager.update_key_window_view(app_data_dictionary, matching_searches, size_properties)
+        window_manager.update_key_window_view(flat_list, size_properties, cur_string, 0)
 
         if len(matching_searches) == 1:
             found_element = helperFunctions.get_element_from_flat_index(app_data_dictionary, matching_searches[0])

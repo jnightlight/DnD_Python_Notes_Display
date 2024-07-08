@@ -1,6 +1,7 @@
 import curses
 
 import DataWindow
+import KeyWindowElement
 import KeyWindowManager
 
 
@@ -64,9 +65,14 @@ class WindowManager:
         safe_refresh(self.key_window)
         safe_refresh(self.data_window)
 
-    def update_key_window_view(self, app_data_dictionary, flat_list_element, size_properties):
-        self.key_window_manager.print_advanced_keys_recursive(app_data_dictionary, flat_list_element, size_properties,
-                                                              0, 1)
+    def update_key_window_view(self, flat_list, size_properties, search_filter, print_start_index):
+        element_list = []
+        for entry in flat_list:
+            element = KeyWindowElement.KeyWindowElement(entry, False)
+            if search_filter != "" and search_filter in entry[-1]:
+                element.add_formatting(curses.A_STANDOUT)
+            element_list.append(element)
+        self.key_window_manager.print_key_window(element_list, size_properties, print_start_index)
 
     def update_data_window_view(self, found_element, window_manager, size_properties):
         DataWindow.print_data_window_text(found_element, window_manager, size_properties)
