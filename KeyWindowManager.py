@@ -8,7 +8,8 @@ class KeyWindowManager:
     def print_key_window(self, ordered_element_list, size_properties, print_start_index=0):
         printed_lines = 0
         for element in ordered_element_list[print_start_index:len(ordered_element_list)]:
-            if printed_lines >= size_properties.max_valid_rows:
+            # TODO: This only has a -2 to work in the pycharm debugger. There's a better way to do this, lol
+            if printed_lines >= size_properties.max_valid_rows - 2:
                 # TODO: Log a warning to an error file
                 return
             display_string = element.path_list[-1]
