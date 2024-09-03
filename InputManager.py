@@ -10,6 +10,12 @@ class InputActions(Enum):
     RESIZE = 4
 
 
+class InputStates(Enum):
+    SCROLL = 0
+    SEARCH = 1
+    EDIT = 2
+
+
 def process_input(in_char, arrow_key_index, flat_list):
     input_action = InputActions.BACKSPACE
 
